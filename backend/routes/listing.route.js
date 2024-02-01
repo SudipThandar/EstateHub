@@ -4,6 +4,7 @@ const verifyToken = require('../utils/verifyUser');
 
 const router = express.Router();
 
-router.post('/create', verifyToken, listingController.create);
+router.post('/create', verifyToken, listingController.createListing);
+router.delete('/delete/:id', verifyToken, listingController.deleteListing);
 
 module.exports = router;
