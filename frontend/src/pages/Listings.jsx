@@ -9,14 +9,13 @@ import {
   FaBath,
   FaBed,
   FaChair,
-  FaMapMarkedAlt,
   FaMapMarkerAlt,
   FaParking,
   FaShare,
 } from 'react-icons/fa';
 import Contact from '../components/Contact';
 
-const Listing = () => {
+const Listings = () => {
   SwiperCore.use([Navigation]);
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -134,7 +133,6 @@ const Listing = () => {
                 {listing.furnished ? 'Furnished' : 'Unfurnished'}
               </li>
             </ul>
-
             {currentUser && listing.userRef !== currentUser._id && !contact && (
               <button
                 onClick={() => setContact(true)}
@@ -151,4 +149,4 @@ const Listing = () => {
   );
 };
 
-export default Listing;
+export default Listings;
