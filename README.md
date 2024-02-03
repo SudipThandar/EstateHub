@@ -1,155 +1,218 @@
-# Real Estate Project
+# MERN Real Estate
 
-![](/assets/home.png)
+A full-stack real estate marketplace built on the MERN stack (MongoDB, Express, React, Node.js). Users can create an account, browse property listings for sale or rent, search and filter them, and publish and manage their own listings with photos — all through a modern, responsive interface.
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Key Features](#key-features)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [API Endpoints](#api-endpoints)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
-  - [Backend Setup](#backend-setup)
-  - [Frontend Setup](#frontend-setup)
-  - [Usage](#usage)
-- [Project Preview](#project-preview)
+  - [Installation](#installation)
+  - [Environment Variables](#environment-variables)
+  - [Running the Application](#running-the-application)
+- [Available Scripts](#available-scripts)
+- [Production Build](#production-build)
 
 ## Overview
 
-This is a comprehensive real estate project designed to streamline property management and enhance the overall user experience for both property owners and tenants. The project leverages technologies such as Node.js, Express, and MongoDB for the backend, and React for the frontend.
+The application consists of two parts served by a single Node.js process in production:
 
-## Key Features
+- **Backend** — an Express REST API backed by MongoDB through Mongoose. It handles authentication with JSON Web Tokens stored in HTTP-only cookies, and exposes endpoints for user management and property listings.
+- **Frontend** — a React single-page application built with Vite and styled with TailwindCSS. Global state is managed with Redux Toolkit and persisted across sessions with Redux Persist. Firebase provides Google sign-in and image storage for listing photos.
 
-- **User Authentication**: Secure authentication system to manage user accounts, ensuring data privacy and security.
-- **Listing Management**: Efficiently create, update, and display property listings, with support for various types such as sale and rent.
+## Features
 
-- **Responsive UI**: A user-friendly and responsive frontend built with React, providing a seamless experience across devices.
+- **Authentication** — email/password sign-up and sign-in with JWT-based sessions in HTTP-only cookies, plus one-click Google sign-in via Firebase.
+- **Listing Management** — authenticated users can create, update, and delete their own property listings, including uploading multiple photos per listing.
+- **Rich Listing Details** — listings support sale or rent categories, pricing with optional discounted offers, and amenities such as parking and furnishing.
+- **Search and Filtering** — full search page with keyword search, type filters (sale/rent), amenity filters, sorting, and pagination.
+- **Image Slider** — listing photos are displayed in a touch-friendly slider.
+- **Profile Management** — users can update their account details, change their avatar, view their listings, or delete their account.
+- **Contact Landlord** — interested users can contact a listing's owner directly from the listing page.
+- **Responsive UI** — TailwindCSS-based layouts optimized for mobile, tablet, and desktop screens.
 
-- **API Endpoints**: Well-defined API endpoints for user-related actions, property listing management, and more.
+## Tech Stack
 
-- **Middleware Handling**: Robust middleware to handle errors gracefully and provide informative responses.
+### Backend
+
+| Technology | Purpose |
+|---|---|
+| Node.js / Express | HTTP server and REST API |
+| MongoDB / Mongoose | Database and ODM |
+| JSON Web Token | Authentication tokens |
+| Bcryptjs | Password hashing |
+| Cookie Parser | Reading auth cookies |
+| Dotenv | Environment configuration |
+
+### Frontend
+
+| Technology | Purpose |
+|---|---|
+| React 18 | UI library |
+| Vite | Build tool and dev server |
+| TailwindCSS | Utility-first CSS framework |
+| Redux Toolkit | Global state management |
+| Redux Persist | State persistence across sessions |
+| React Router | Client-side routing |
+| Firebase | Google OAuth and image storage |
+| Swiper | Image slider/carousel |
+| React Icons | Icon library |
+
+## Architecture
+
+```
+┌────────────────┐        REST (JSON)         ┌────────────────┐        ┌────────────────┐
+│    Frontend    │ ─────────────────────────► │    Backend     │ ─────► │    MongoDB     │
+│  React + Vite  │ ◄───────────────────────── │ Express (3000) │ ◄───── │   (Mongoose)   │
+└───────┬────────┘                            └────────────────┘        └────────────────┘
+        │
+        ▼
+┌────────────────┐
+│    Firebase    │  (Google sign-in and direct image uploads from the browser)
+└────────────────┘
+```
+
+- The frontend calls the backend's REST endpoints under `/api`.
+- Authentication state travels in an HTTP-only cookie set by the backend.
+- Listing images are uploaded from the browser directly to Firebase Storage; only the resulting URLs are stored in MongoDB.
+- In production, the Express server also serves the built frontend from `frontend/dist`, so the whole application runs as a single process.
+
+## Project Structure
+
+```
+.
+├── backend/
+│   ├── controller/       # Route handlers (auth, user, listing)
+│   ├── models/           # Mongoose models (User, Listing)
+│   ├── routes/           # Express routers (/api/auth, /api/user, /api/listing)
+│   ├── utils/            # Error handling and token verification helpers
+│   └── index.js          # App entry point
+├── frontend/
+│   └── src/
+│       ├── components/   # Reusable UI components
+│       ├── pages/        # Route-level pages (Home, Search, Listings, Profile, ...)
+│       └── redux/        # Redux Toolkit store and slices
+├── package.json          # Backend dependencies and root scripts
+└── frontend/package.json # Frontend dependencies and scripts
+```
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/auth/signup` | Register a new account |
+| POST | `/api/auth/signin` | Sign in with email and password |
+| POST | `/api/auth/google` | Sign in or register with Google |
+| GET | `/api/auth/signout` | Sign out the current user |
+| POST | `/api/user/update/:id` | Update account details |
+| DELETE | `/api/user/delete/:id` | Delete an account |
+| GET | `/api/user/listings/:id` | Get a user's listings |
+| POST | `/api/listing/create` | Create a listing |
+| POST | `/api/listing/update/:id` | Update a listing |
+| DELETE | `/api/listing/delete/:id` | Delete a listing |
+| GET | `/api/listing/get/:id` | Get a single listing |
+| GET | `/api/listing/get` | Search listings with query filters |
 
 ## Getting Started
 
-Follow these steps to set up the project locally on your machine:
-
 ### Prerequisites
 
-Make sure you have the following software installed on your system:
-
-- [Node.js](https://nodejs.org/)
-- [MongoDB](https://www.mongodb.com/)
-- [React.js](https://react.dev/)
+- Node.js 18 or later and npm
+- A MongoDB database (local instance or a hosted service such as MongoDB Atlas)
+- A Firebase project with Google authentication and Storage enabled
 
 ### Installation
 
-1. Clone the repository to your local machine:
-
-```bash
-git clone https://github.com/sothulthorn/mern-real-estate.git
-```
-
-2. Navigate to the project directory:
-
-```bash
-cd mern-real-estate
-```
-
-#### Backend Setup
-
-Now, let's set up the backend of the real estate project.
-
-1. Install dependencies:
+Install backend dependencies from the project root:
 
 ```bash
 npm install
 ```
 
-2. Create a `.env` file:
-
-```bash
-MONGODB_URL=your_mongodb_connection_url
-JWT_SECRET=your_jwt_secret_code
-```
-
-3. Start the development server:
-
-```bash
-npm run dev
-```
-
-#### Frontend Setup
-
-Now, let's set up the frontend of the real estate project.
-
-1. Navigate to the frontend directory:
+Then install frontend dependencies:
 
 ```bash
 cd frontend
-```
-
-2. Install dependencies:
-
-```bash
 npm install
 ```
 
-3. Create a `.env` file:
+### Environment Variables
 
-```bash
-VITE_APP_FIREBASE_API_KEY=your_firebase_api_key
-VITE_APP_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-VITE_APP_FIREBASE_PROJECT_ID=your_firebase_project_id
-VITE_APP_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
-VITE_APP_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
-VITE_APP_FIREBASE_APP_ID=your_firebase_app_id
-```
+Create a `.env` file in each location with the following variables.
 
-4. Start the development server:
+**Project root (backend)**
+
+| Variable | Description |
+|---|---|
+| `MONGODB_URL` | MongoDB connection string |
+| `JWT_SECRET` | Secret used to sign JSON Web Tokens |
+
+**frontend/.env**
+
+| Variable | Description |
+|---|---|
+| `VITE_APP_FIREBASE_API_KEY` | Firebase API key |
+| `VITE_APP_FIREBASE_AUTH_DOMAIN` | Firebase auth domain |
+| `VITE_APP_FIREBASE_PROJECT_ID` | Firebase project ID |
+| `VITE_APP_FIREBASE_STORAGE_BUCKET` | Firebase storage bucket |
+| `VITE_APP_FIREBASE_MESSAGING_SENDER_ID` | Firebase messaging sender ID |
+| `VITE_APP_FIREBASE_APP_ID` | Firebase app ID |
+
+### Running the Application
+
+Start the backend from the project root:
 
 ```bash
 npm run dev
 ```
 
-#### Usage
+The API will be available at `http://localhost:3000`.
 
-Visit `http://localhost:5173/` in your browser to access the full application, seamlessly integrating the backend and frontend.
+In a separate terminal, start the frontend:
 
-## Project Preview
+```bash
+cd frontend
+npm run dev
+```
 
-### Home Page
+Visit `http://localhost:5173` in your browser to use the application.
 
-![](/assets/home.png)
+## Available Scripts
 
-![](/assets/offer-section.png)
+### Root (backend)
 
-![](/assets/rent-section.png)
+| Script | Description |
+|---|---|
+| `npm run dev` | Start the backend with hot reload (nodemon) |
+| `npm start` | Start the backend with Node |
+| `npm run build` | Install all dependencies and build the frontend |
 
-![](/assets/sale-section.png)
+### Frontend
 
-### Sign In Page
+| Script | Description |
+|---|---|
+| `npm run dev` | Start the Vite development server |
+| `npm run build` | Build the frontend for production |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint over the codebase |
 
-![](/assets/sign-in.png)
+## Production Build
 
-### Sign Up Page
+Build everything from the project root:
 
-![](/assets/sign-up.png)
+```bash
+npm run build
+```
 
-### Profile Page
+This installs dependencies for both packages and outputs the frontend build to `frontend/dist`. Then start the server:
 
-![](/assets/profile.png)
+```bash
+npm start
+```
 
-### Create Lists Page
-
-![](/assets/creating-list.png)
-
-### Update Lists Page
-
-![](/assets/updating-list.png)
-
-### Listing Page
-
-![](/assets/listing.png)
-
-### Search Page
-
-![](/assets/search-page.png)
+The Express server serves both the API and the built frontend at `http://localhost:3000`.
