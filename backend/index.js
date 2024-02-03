@@ -30,10 +30,12 @@ app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/listing', listingRouter);
 
-app.use(express.static(path.join(__dirname, '/frontend/dist')));
+// Serve static files from the 'dist' directory
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
+// Serve the 'index.html' file for any other routes
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
+  res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
 });
 
 // Middleware
