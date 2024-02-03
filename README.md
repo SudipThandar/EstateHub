@@ -118,7 +118,13 @@ Visit `http://localhost:5173/` in your browser to access the full application, s
 
 ### Home Page
 
-![](/assets/home-page.gif)
+![](/assets/home.png)
+
+![](/assets/offer-section.png)
+
+![](/assets/rent-section.png)
+
+![](/assets/sale-section.png)
 
 ### Sign In Page
 
